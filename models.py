@@ -26,42 +26,92 @@ class AIModel(ABC):
     def run(self, input_data): raise NotImplementedError
 
 
+# models.py
+from abc import ABC, abstractmethod
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
+
+import torch
+from min_dalle import MinDalle
+from PIL import Image
+
+
+class AIModel(ABC):
+    def __init__(self, name, category, description):
+        self._name, self._category, self._description = name, category, description
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def category(self):
+        return self._category
+
+    @property
+    def description(self):
+        return self._description
+
+    def info(self):
+        return f"• Model Name: {self._name}\n• Category: {self._category}\n• Description: {self._description}"
+
+    @abstractmethod
+    def run(self, input_data):
+        raise NotImplementedError
+
+
 class TextToImageDemo(AIModel):
-    def __init__(self):
-        super().__init__("Text2ImageMiniHF", "Text-to-Image", "DALL·E Mini via Hugging Face Transformers")
-        self.device = 0 if torch.cuda.is_available() else -1  # GPU=0, CPU=-1
+    def __init__(self, device='cpu', is_mega=False):
+        super().__init__("Text2ImageMini", "Text-to-Image", "MinDalle (PyTorch DALL·E Mini implementation)")
+        self.device = device
+        self.is_mega = is_mega
         self.model = None
-        self.tokenizer = None
-        self.pipe = None
 
         try:
-            print("Loading Hugging Face DALL·E Mini...")
-            # ⚠️ This will fail, since dalle-mini isn't supported in transformers
-            self.tokenizer = AutoTokenizer.from_pretrained("dalle-mini/dalle-mini")
-            self.model = AutoModelForSeq2SeqLM.from_pretrained("dalle-mini/dalle-mini")
-            self.pipe = pipeline(
-                "text-to-image",
-                model=self.model,
-                tokenizer=self.tokenizer,
-                device=self.device
+            print("Loading MinDalle model...")
+            self.model = MinDalle(
+                dtype=torch.float32,
+                device=self.device,
+                is_mega=self.is_mega,
+                is_reusable=True
             )
-            print("✅ DALL·E Mini loaded successfully.")
+            print("✅ MinDalle loaded successfully.")
         except Exception as e:
-            print("❌ Failed to load DALL·E Mini:", e)
-            self.pipe = None
+            print("❌ Failed to load MinDalle:", e)
 
     def run(self, prompt: str, **kwargs):
-        if self.pipe is None:
+        if self.model is None:
             return "⚠️ Model not loaded."
 
         try:
-            result = self.pipe(prompt, num_inference_steps=20)
-            img = result[0]["image"]
+            # Extract optional parameters or set defaults
+            seed = kwargs.get('seed', -1)
+            grid_size = kwargs.get('grid_size', 1)
+            is_seamless = kwargs.get('is_seamless', False)
+            temperature = kwargs.get('temperature', 1.0)
+            top_k = kwargs.get('top_k', 128)
+            supercondition_factor = kwargs.get('supercondition_factor', 16)
+
+            # Generate image
+            image = self.model.generate_image(
+                text=prompt,
+                seed=seed,
+                grid_size=grid_size,
+                is_seamless=is_seamless,
+                temperature=temperature,
+                top_k=top_k,
+                supercondition_factor=supercondition_factor
+            )
+
+            # Save image
             file_path = "generated_image.png"
-            img.save(file_path)
+            image.save(file_path)
             return f"✅ Image generated and saved at: {file_path}"
+
         except Exception as e:
             return f"❌ Error during image generation: {e}"
+
 
 
 class ImageClassificationDemo(AIModel):
