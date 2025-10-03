@@ -107,7 +107,7 @@ class AIApp(BaseWindow, ModelManager):
         rb_frame.grid(row=0, column=0, sticky="w", pady=(4,2))
         tk.Radiobutton(rb_frame, text="Text", variable=self.input_mode, value="Text").pack(side="left")
         tk.Radiobutton(rb_frame, text="Image", variable=self.input_mode, value="Image").pack(side="left", padx=8)
-        tk.Radiobutton(rb_frame, text="Audio", variable=self.input_mode, value="Audio").pack(side="left")
+        
 
         browse_frame = tk.Frame(left)
         browse_frame.grid(row=1, column=0, sticky="ew", pady=(4,2))
