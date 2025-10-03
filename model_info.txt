@@ -1,0 +1,22 @@
+MODEL INFORMATION
+
+Model 1
+
+Name: Text2ImageMini (TextToImageDemo)
+Category: Text-to-Image
+Implementation: MinDalle (local min_dalle library)
+Description: Generates an image from a text prompt and saves it as "generated_image.png".
+Input: text prompt string (supports optional generation params: seed, grid_size, temperature, etc.)
+Output: saved PNG file + a short status string (e.g., "✅ Image generated and saved at: generated_image.png")
+Notes: May require min_dalle + PyTorch; can be slow or unavailable if dependency fails (the code handles that by returning a warning string).
+
+Model 2
+
+Name: ViTImageClassifier (ImageClassificationDemo)
+Repo id: google/vit-base-patch16-224
+Category: Image Classification (vision)
+Implementation: Hugging Face ViT (ViTImageProcessor + ViTForImageClassification)
+Description: Classifies an input image (ImageNet-style labels).
+Input: local image path or image URL
+Output: top predicted label (e.g., "✅ Predicted class: golden_retriever")
+Notes: Model downloads on first run (large); runs on GPU if available or CPU otherwise.
