@@ -1,0 +1,20 @@
+OOP Concepts Used (brief)
+
+
+1) Abstraction & Interfaces:
+   - AIModel is an abstract base class (ABC) defining the interface (.info(), .run()).
+
+2) Encapsulation:
+   - Model classes store internal attributes (e.g., _name, _category, _description) accessed via properties.
+
+3) Inheritance & Polymorphism:
+   - TextToImageDemo and ImageClassificationDemo inherit from AIModel and implement run(input_data) differently (polymorphism).
+
+4) Multiple Inheritance / Mixins:
+   - AIApp inherits BaseWindow (Tk) and ModelManager (mixin) — ModelManager holds model registry and loaded state.
+
+5) Method Overriding:
+   - Child classes override the abstract run method to implement different behaviors (generate image vs classify).
+
+6) Decorators (cross-cutting concerns):
+   - decorators.py provides @log_action, @require_model_loaded, @validate_input to add logging, preconditions and validation without modifying core logic.
